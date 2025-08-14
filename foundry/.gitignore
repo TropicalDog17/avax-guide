@@ -1,0 +1,14 @@
+# Foundry build artifacts
+out/
+cache/
+broadcast/
+lib/
+
+# Env files
+.env
+.env.*
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
