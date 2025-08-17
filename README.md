@@ -15,6 +15,57 @@ This guide helps you set up a local Avalanche Subnet for development. It covers:
 - **Foundry** (optional) – For Solidity development with Foundry
 - **Hardhat** (optional) – For JavaScript/TypeScript development workflow
 
+## Installation Guide
+
+### 1. Node.js and npm
+```bash
+# Using nvm (recommended)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 18
+nvm use 18
+
+# Verify installation
+node --version  # Should be ≥ 18
+npm --version
+```
+
+### 2. Avalanche-CLI
+```bash
+curl -sSfL https://raw.githubusercontent.com/ava-labs/avalanche-cli/main/scripts/install.sh | sh -s
+
+# Add to your PATH (add this to your ~/.bashrc or ~/.zshrc)
+export PATH=$PATH:$HOME/.avalanche-cli/bin
+
+# Verify installation
+avalanche --version
+```
+
+### 3. Foundry (if using Solidity-native development)
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
+# Verify installation
+forge --version
+cast --version
+```
+
+### 4. Hardhat (if using TypeScript development)
+```bash
+# Create a new directory for your project
+mkdir my-avalanche-project
+cd my-avalanche-project
+
+# Initialize a new npm project
+npm init -y
+
+# Install Hardhat and dependencies
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+
+# Initialize Hardhat project
+npx hardhat init
+```
+
 > **Tip**: For local development, using the pre-funded "ewoq" account is the easiest way to get started. This account comes with test tokens and is ready to use.
 >
 > **Security Note**: The "ewoq" private key is well-known and should ONLY be used for local development. Never use it on public networks or with real funds.
