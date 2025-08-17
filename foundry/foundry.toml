@@ -6,8 +6,4 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
-[etherscan]
-# SnowTrace supports the Etherscan API
-# Set SNOWTRACE_API_KEY in environment or .env
-fuji = { key = "${SNOWTRACE_API_KEY}", chain = 43113, url = "https://api-testnet.snowtrace.io/api" }
-avalanche = { key = "${SNOWTRACE_API_KEY}", chain = 43114, url = "https://api.snowtrace.io/api" }
+# Etherscan verification disabled for local development

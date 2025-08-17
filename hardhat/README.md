@@ -4,23 +4,44 @@ This guide shows how to deploy and interact with smart contracts on your local A
 
 ## Project Setup
 
-1. Initialize the project:
-
+1. Initialize the project and install dependencies:
 ```bash
 npm init -y
-npm i --save-dev hardhat @nomicfoundation/hardhat-toolbox dotenv
+npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox @types/node typescript dotenv
 npx hardhat init
 ```
 
-2. Create `.env` file:
-
-```ini
-RPC_URL=http://127.0.0.1:43179/ext/bc/Kqw5jDZCFipdNe2tCwVoFPq2Zm4mwr5uL7x2et3bdnLKNAbxZ/rpc
-PK_EWOQ=0x56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027
+2. Create TypeScript configuration (`tsconfig.json`):
+```json
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  }
+}
 ```
 
-3. Configure `hardhat.config.ts`:
+3. Set up environment variables:
 
+Option 1 - Create `.env` file:
+```ini
+RPC_URL=http://127.0.0.1:50184/ext/bc/FHfgAKseBqDgobF7Qc2AUpHvpHUqDL1fYYX1cufjQrdjLKGGn/rpc
+PRIVATE_KEY=0x56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027
+```
+
+Option 2 - Set environment variables directly:
+```bash
+export RPC_URL=http://127.0.0.1:50184/ext/bc/FHfgAKseBqDgobF7Qc2AUpHvpHUqDL1fYYX1cufjQrdjLKGGn/rpc
+export PRIVATE_KEY=0x56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027
+```
+
+4. Configure `hardhat.config.ts`:
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
@@ -31,12 +52,13 @@ const config: HardhatUserConfig = {
   solidity: "0.8.20",
   networks: {
     avaxvn: {
-      url: process.env.RPC_URL!,
+      url: process.env.RPC_URL ?? "",
       chainId: 12345,
-      accounts: [process.env.PK_EWOQ!],
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
   },
 };
+
 export default config;
 ```
 
@@ -50,14 +72,14 @@ hardhat/
 ├── scripts/
 │   ├── deploy-greeter.ts # Greeter deployment script
 │   └── deploy-token.ts   # Token deployment script
-├── .env                  # Environment variables
+├── .env                  # Environment variables (optional)
+├── tsconfig.json         # TypeScript configuration
 └── hardhat.config.ts     # Hardhat configuration
 ```
 
 ## Contract Source Code
 
 ### Greeter.sol
-
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -83,7 +105,6 @@ contract Greeter {
 ```
 
 ### MyToken.sol
-
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -104,49 +125,62 @@ contract MyToken is ERC20, Ownable {
 ## Deployment Scripts
 
 ### deploy-greeter.ts
-
 ```typescript
 import { ethers } from "hardhat";
+
 async function main() {
   const Greeter = await ethers.getContractFactory("Greeter");
-  const g = await Greeter.deploy("Hello, Avalanche!");
-  await g.deployed();
-  console.log("Greeter:", g.address);
+  const greeter = await Greeter.deploy("Hello, Avalanche!");
+  await greeter.waitForDeployment();
+  
+  const address = await greeter.getAddress();
+  console.log("Greeter deployed to:", address);
 }
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 ```
 
 ### deploy-token.ts
-
 ```typescript
 import { ethers } from "hardhat";
+
 async function main() {
+  const [deployer] = await ethers.getSigners();
   const Token = await ethers.getContractFactory("MyToken");
-  const [signer] = await ethers.getSigners();
-  const t = await Token.deploy(
+  
+  const token = await Token.deploy(
     "TuanTran Token",
     "TT",
-    signer.address,
+    deployer.address,
     ethers.parseEther("1000000")
   );
-  await t.deployed();
-  console.log("Token:", t.address);
+  await token.waitForDeployment();
+  
+  const address = await token.getAddress();
+  console.log("Token deployed to:", address);
 }
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 ```
 
 ## Deployment
 
 Deploy the contracts:
-
 ```bash
+# Deploy Greeter
 npx hardhat run scripts/deploy-greeter.ts --network avaxvn
+
+# Deploy Token
 npx hardhat run scripts/deploy-token.ts --network avaxvn
 ```
 
@@ -154,38 +188,34 @@ Save the deployed contract addresses!
 
 ## Contract Interaction
 
-You can interact with the contracts using the Hardhat console or by creating scripts. Here are some examples:
+You can interact with the contracts using the Hardhat console or by creating scripts:
 
 ### Using Hardhat Console
-
 ```bash
 npx hardhat console --network avaxvn
 ```
 
 ### Read Greeting
-
 ```typescript
-const g = await ethers.getContractAt("Greeter", "YOUR_GREETER_ADDRESS");
-await g.greet();
+const greeter = await ethers.getContractAt("Greeter", "YOUR_GREETER_ADDRESS");
+await greeter.greet();
 ```
 
 ### Set Greeting
-
 ```typescript
-await g.setGreeting("Xin chao, Subnet!");
+await greeter.setGreeting("Xin chao, Subnet!");
 ```
 
 ### Check Token Balance
-
 ```typescript
-const t = await ethers.getContractAt("MyToken", "YOUR_TOKEN_ADDRESS");
-await t.balanceOf("0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC");
+const token = await ethers.getContractAt("MyToken", "YOUR_TOKEN_ADDRESS");
+const [signer] = await ethers.getSigners();
+await token.balanceOf(signer.address);
 ```
 
 ### Transfer Tokens
-
 ```typescript
-await t.transfer(
+await token.transfer(
   "0x1111111111111111111111111111111111111111",
   ethers.parseEther("1000")
 );
@@ -194,10 +224,25 @@ await t.transfer(
 ## Testing
 
 Create tests in the `test` directory and run them with:
-
 ```bash
 npx hardhat test
 ```
+
+## Troubleshooting
+
+1. **Node.js Version Warning**:
+   - Hardhat works best with LTS versions of Node.js
+   - Current code is tested with Node.js v18.x
+
+2. **Environment Variables**:
+   - Make sure `RPC_URL` points to your subnet's RPC endpoint
+   - Ensure `PRIVATE_KEY` is set correctly
+   - When using `.env`, make sure the file is in the project root
+
+3. **Common Errors**:
+   - "Invalid RPC URL": Check your subnet's RPC endpoint
+   - "Missing private key": Check environment variables
+   - "Contract deployment failed": Check network connection
 
 ## Tips
 
@@ -206,3 +251,4 @@ npx hardhat test
 - Use environment variables for sensitive data
 - The Hardhat console is great for quick interactions
 - Use `ethers.parseEther()` for working with token amounts
+- Always use `await contract.waitForDeployment()` after deployment

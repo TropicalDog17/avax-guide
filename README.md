@@ -15,9 +15,9 @@ This guide helps you set up a local Avalanche Subnet for development. It covers:
 - **Foundry** (optional) – For Solidity development with Foundry
 - **Hardhat** (optional) – For JavaScript/TypeScript development workflow
 
-> 💡 **Tip**: For local development, using the pre-funded "ewoq" account is the easiest way to get started. This account comes with test tokens and is ready to use.
+> **Tip**: For local development, using the pre-funded "ewoq" account is the easiest way to get started. This account comes with test tokens and is ready to use.
 >
-> ⚠️ **Security Note**: The "ewoq" private key is well-known and should ONLY be used for local development. Never use it on public networks or with real funds.
+> **Security Note**: The "ewoq" private key is well-known and should ONLY be used for local development. Never use it on public networks or with real funds.
 
 ## Create + Deploy the Subnet
 

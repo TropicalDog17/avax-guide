@@ -19,16 +19,22 @@ foundry/
 
 1. Make sure you have Foundry installed and your local Subnet running (see main README)
 
-2. Set up your private key (local only):
-
+2. Install dependencies:
 ```bash
-export PK_EWOQ=0x56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027
+forge install foundry-rs/forge-std@v1.7.6 --no-commit
+forge install OpenZeppelin/openzeppelin-contracts@v5.0.1 --no-commit
 ```
 
-3. Set your RPC URL:
-
+3. Set up environment variables (replace RPC_URL with your subnet's RPC URL):
 ```bash
-export RPC="http://127.0.0.1:43179/ext/bc/Kqw5jDZCFipdNe2tCwVoFPq2Zm4mwr5uL7x2et3bdnLKNAbxZ/rpc"
+# Private key for local development only
+export PRIVATE_KEY=0x56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027
+
+# RPC URL from your subnet deployment
+export RPC_URL="http://127.0.0.1:50184/ext/bc/FHfgAKseBqDgobF7Qc2AUpHvpHUqDL1fYYX1cufjQrdjLKGGn/rpc"
+
+# Optional greeting message
+export GREETING="Hello, Avalanche!"
 ```
 
 ## Deployment
@@ -36,67 +42,67 @@ export RPC="http://127.0.0.1:43179/ext/bc/Kqw5jDZCFipdNe2tCwVoFPq2Zm4mwr5uL7x2et
 ### Deploy Greeter Contract
 
 ```bash
-forge script src/script/DeployGreeter.s.sol \
-  --rpc-url $RPC \
+forge script script/DeployGreeter.s.sol \
+  --rpc-url $RPC_URL \
   --broadcast \
   --skip-simulation \
   --via-ir \
   -vvvv \
-  --private-key $PK_EWOQ
+  --verify false
 ```
 
 ### Deploy ERC-20 Token
 
 ```bash
-forge script src/script/DeployERC20.s.sol \
-  --rpc-url $RPC \
+forge script script/DeployERC20.s.sol \
+  --rpc-url $RPC_URL \
   --broadcast \
   --skip-simulation \
   --via-ir \
   -vvvv \
-  --private-key $PK_EWOQ
+  --verify false
 ```
 
 Save the deployed contract addresses from the script output!
 
 ## Interaction with cast
 
-Replace `$G` with your Greeter address and `$T` with your Token address in the following commands.
+Replace `$GREETER` with your Greeter address and `$TOKEN` with your Token address in the following commands.
 
 ### Greeter Contract
 
 Read the greeting:
-
 ```bash
-cast call $G "greet()(string)" --rpc-url $RPC
+cast call $GREETER "greet()(string)" --rpc-url $RPC_URL
 ```
 
 Set a new greeting:
-
 ```bash
-cast send $G "setGreeting(string)" "Xin chao, Subnet!" \
-  --rpc-url $RPC --private-key $PK_EWOQ
+cast send $GREETER "setGreeting(string)" "Xin chao, Subnet!" \
+  --rpc-url $RPC_URL \
+  --private-key $PRIVATE_KEY
 ```
 
 ### ERC-20 Token
 
 Check balance:
-
 ```bash
-cast call $T "balanceOf(address)(uint256)" 0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC --rpc-url $RPC
+cast call $TOKEN "balanceOf(address)(uint256)" \
+  $(cast wallet address $PRIVATE_KEY) \
+  --rpc-url $RPC_URL
 ```
 
 Transfer tokens:
-
 ```bash
-cast send $T "transfer(address,uint256)" 0x1111111111111111111111111111111111111111 1000ether \
-  --rpc-url $RPC --private-key $PK_EWOQ
+cast send $TOKEN "transfer(address,uint256)" \
+  0x1111111111111111111111111111111111111111 1000ether \
+  --rpc-url $RPC_URL \
+  --private-key $PRIVATE_KEY
 ```
 
 ## Contract Source Code
 
 ### Greeter.sol
-
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -122,7 +128,6 @@ contract Greeter {
 ```
 
 ### ERC20Token.sol
-
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
@@ -143,40 +148,62 @@ contract MyToken is ERC20, Ownable {
 ## Deployment Scripts
 
 ### DeployGreeter.s.sol
-
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
-import {Greeter} from "src/Greeter.sol";
+import {Greeter} from "../src/Greeter.sol";
 
 contract DeployGreeter is Script {
     function run() external returns (Greeter g) {
         uint256 pk = vm.envUint("PRIVATE_KEY");
+        string memory greeting = vm.envOr("GREETING", string("Hello, Avalanche!"));
+        
         vm.startBroadcast(pk);
-        g = new Greeter("Hello, Avalanche!");
+        g = new Greeter(greeting);
         vm.stopBroadcast();
+        
+        console2.log("Greeter deployed at:", address(g));
     }
 }
 ```
 
 ### DeployERC20.s.sol
-
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 import "forge-std/Script.sol";
-import {MyToken} from "src/MyToken.sol";
+import {MyToken} from "../src/ERC20Token.sol";
 
 contract DeployToken is Script {
     function run() external returns (MyToken t) {
         uint256 pk = vm.envUint("PRIVATE_KEY");
+        address deployer = vm.addr(pk);
+        
         vm.startBroadcast(pk);
-        t = new MyToken("TuanTran Token", "TT", vm.addr(pk), 1_000_000 ether);
+        t = new MyToken("TuanTran Token", "TT", deployer, 1_000_000 ether);
         vm.stopBroadcast();
+        
+        console2.log("Token deployed at:", address(t));
     }
 }
 ```
+
+## Troubleshooting
+
+1. **Contract verification errors**: 
+   - For local development, use `--verify false` to skip verification
+   - Verification is only needed for public networks
+
+2. **Environment variables**:
+   - Make sure `PRIVATE_KEY` is set correctly
+   - Update `RPC_URL` to match your subnet's RPC endpoint
+   - Optional: Set `GREETING` for custom greeting message
+
+3. **Common errors**:
+   - "No associated wallet": Make sure `PRIVATE_KEY` is set
+   - "Invalid RPC URL": Check your subnet's RPC endpoint
+   - "Nonce too low": Wait for a block or use `--nonce <value>`
 
 ## Tips
 
@@ -184,3 +211,4 @@ contract DeployToken is Script {
 - Save contract addresses after deployment
 - The `--via-ir` flag enables the new IR-based pipeline for better optimization
 - Use `--skip-simulation` for faster local deployments
+- For script imports, use relative paths (e.g., `../src/Greeter.sol`)
