@@ -84,15 +84,67 @@ When done, CLI prints your RPC & Chain ID. Save these values for development.
 
 ## Important Configuration Values
 
-When you deploy your subnet, you'll get the following configuration values:
+After deploying your subnet, you'll get several important configuration values. Here's how to find and use them:
 
-- **RPC URL**: Look for the HTTP URL in your deployment logs
-- **Chain ID**: Default is 12345 for local development
-- **Network name**: The name you chose (e.g., "avaxvn")
-- **Funded account**: The pre-funded "ewoq" account address
-- **Private key**: The "ewoq" development private key
+### 1. Network Configuration
 
-Save these values as you'll need them to connect your wallet and deploy contracts.
+- **RPC URL**: 
+  ```
+  http://127.0.0.1:YOUR_PORT/ext/bc/YOUR_BLOCKCHAIN_ID/rpc
+  ```
+  - Look for `Network RPC URL` in the deployment output
+  - Example: `http://127.0.0.1:62232/ext/bc/2GHMseet1iSGcyJAUZJpgErjkLvSHpbBJYJLvP9F39TVUw5Dku/rpc`
+  - Save this URL - you'll need it for all interactions with your subnet
+
+- **Chain ID**: `12345`
+  - This is fixed for local development
+  - Used in wallet configuration and contract deployment
+  
+- **Network Name**: `avaxvn`
+  - The name you chose during creation
+  - Used for wallet and configuration identification
+
+### 2. Pre-funded Development Account
+
+The subnet comes with a pre-funded account for development:
+
+```bash
+# Main funded account (ewoq)
+Address: 0x8db97C7cEcE249c2b98bDC0226Cc4C2A57BF52FC
+Private Key: 56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027
+Initial Balance: 1,000,000 TEST
+```
+
+**Security Note**: This is a well-known development account. Never use it on public networks or with real funds.
+
+### 3. Environment Variables
+
+Set these for easy access in your development environment:
+
+```bash
+# Save in your ~/.bashrc or ~/.zshrc
+export SUBNET_RPC="YOUR_RPC_URL"
+export PK_EWOQ="56289e99c94b6912bfc12adc093c9b51124f0dc54ac7a766b2bc5ccf558d8027"
+```
+
+### 4. Quick Verification
+
+Verify your configuration is working:
+
+```bash
+# Check if RPC is responding
+curl -X POST -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' \
+  $SUBNET_RPC
+
+# Expected response: {"jsonrpc":"2.0","id":1,"result":"0x3039"} (12345 in hex)
+```
+
+Save these values carefully - you'll need them for:
+- Connecting MetaMask or other wallets
+- Deploying and interacting with smart contracts
+- Setting up development environments (Hardhat/Foundry)
+- Running scripts and tests
 
 ## Connect Tools & Wallet
 
