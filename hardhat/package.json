@@ -1,0 +1,18 @@
+{
+  "name": "avax-guide-hardhat",
+  "version": "1.0.0",
+  "description": "Hardhat project for Avalanche Subnet guide",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:greeter": "hardhat run scripts/deploy-greeter.ts --network avaxvn",
+    "deploy:token": "hardhat run scripts/deploy-token.ts --network avaxvn"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.20.1",
+    "typescript": "^5.3.3"
+  }
+}
