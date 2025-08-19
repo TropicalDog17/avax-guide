@@ -1,11 +1,16 @@
 # Avalanche Subnet (Subnet‑EVM, PoA) – Local Setup Guide
 
-This guide helps you set up a local Avalanche Subnet for development. It covers:
+This guide helps you set up a local Avalanche Subnet for development and deploy smart contracts using different toolchains.
 
-1. Prerequisites and installation
-2. Creating and deploying a local Subnet
-3. Connecting tools and wallets
-4. Choosing your development toolchain (Foundry or Hardhat)
+## Table of Contents
+
+1. [Setup and Installation](#prerequisites)
+2. [Create and Deploy Subnet](#create--deploy-the-subnet)
+3. [Configure Network](#1-network-configuration)
+4. [Development Guides](#development-guides)
+   - [Foundry Guide](./foundry/README.md)
+   - [Hardhat Guide](./hardhat/README.md)
+5. [Advanced Topics](#adding-new-validators)
 
 ## Prerequisites
 
@@ -18,6 +23,7 @@ This guide helps you set up a local Avalanche Subnet for development. It covers:
 ## Installation Guide
 
 ### 1. Node.js and npm
+
 ```bash
 # Using nvm (recommended)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -30,6 +36,7 @@ npm --version
 ```
 
 ### 2. Avalanche-CLI
+
 ```bash
 curl -sSfL https://raw.githubusercontent.com/ava-labs/avalanche-cli/main/scripts/install.sh | sh -s
 
@@ -41,16 +48,28 @@ avalanche --version
 ```
 
 ### 3. Foundry (if using Solidity-native development)
+
 ```bash
+# Install Foundry
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 
 # Verify installation
 forge --version
 cast --version
+
+# Initialize git submodules (required for Foundry dependencies)
+git submodule update --init --recursive
+
+# This will install:
+# - forge-std (Foundry's standard library)
+# - OpenZeppelin contracts
 ```
 
+> **Note**: This project uses git submodules to manage Foundry dependencies. If you clone this repository, make sure to initialize the submodules to get all required dependencies.
+
 ### 4. Hardhat (if using TypeScript development)
+
 ```bash
 # Create a new directory for your project
 mkdir my-avalanche-project
@@ -88,19 +107,64 @@ After deploying your subnet, you'll get several important configuration values. 
 
 ### 1. Network Configuration
 
-- **RPC URL**: 
-  ```
-  http://127.0.0.1:YOUR_PORT/ext/bc/YOUR_BLOCKCHAIN_ID/rpc
-  ```
-  - Look for `Network RPC URL` in the deployment output
-  - Example: `http://127.0.0.1:62232/ext/bc/2GHMseet1iSGcyJAUZJpgErjkLvSHpbBJYJLvP9F39TVUw5Dku/rpc`
+To quickly get your network status, RPC URLs and node information:
+
+```bash
+# Show full network status with all details
+avalanche network status
+
+# Show only essential information (hide node tables)
+avalanche network status --hide-table-nodes
+```
+
+This will show:
+
+- Network health status
+- Number of nodes and blockchains
+- RPC URLs for each subnet
+- Node IDs and their endpoints
+
+Example output structure:
+
+```
+Network is Up:
+  Number of Nodes: 4
+  Number of Blockchains: 2
+  Network Healthy: true
+  Blockchains Healthy: true
+
++-------------------------------------------------------------------------------------------------+
+|                                        SUBNET RPC URLS                                          |
++-----------+-------------------------------------------------------------------------------------+
+| Localhost | http://127.0.0.1:9650/ext/bc/[BLOCKCHAIN-ID]/rpc                                    |
++-----------+-------------------------------------------------------------------------------------+
+
++------------------------------------------------------------------+
+|                           PRIMARY NODES                           |
++------------------------------------------+-----------------------+
+| NODE ID                                  | LOCALHOST ENDPOINT    |
++------------------------------------------+-----------------------+
+| NodeID-[UNIQUE-NODE-ID]                  | http://127.0.0.1:9650 |
++------------------------------------------+-----------------------+
+```
+
+This output provides several important pieces of information:
+
+1. **RPC URLs**: Each subnet has its own unique RPC URL with a specific blockchain ID. The URL format follows the pattern: `http://127.0.0.1:9650/ext/bc/[BLOCKCHAIN-ID]/rpc`
+
+2. **Primary Nodes**: These are the main validator nodes running your local network. Each node has a unique NodeID and endpoint.
+
+When setting up your development environment, use the RPC URL provided in the output for your specific subnet. The blockchain ID will be unique for each subnet you create.
+
+- **RPC URL**: Found in the network status output under each subnet's section
+
+  - Example: `http://127.0.0.1:9650/ext/bc/[BLOCKCHAIN-ID]/rpc`
   - Save this URL - you'll need it for all interactions with your subnet
 
 - **Chain ID**: `12345`
   - This is fixed for local development
   - Used in wallet configuration and contract deployment
-  
-- **Network Name**: `avaxvn`
+- **Network Name**: Your chosen subnet name (e.g., `avaxvn`)
   - The name you chose during creation
   - Used for wallet and configuration identification
 
@@ -141,6 +205,7 @@ curl -X POST -H "Content-Type: application/json" \
 ```
 
 Save these values carefully - you'll need them for:
+
 - Connecting MetaMask or other wallets
 - Deploying and interacting with smart contracts
 - Setting up development environments (Hardhat/Foundry)
@@ -208,28 +273,14 @@ Features:
 
 Choose the development environment that best fits your workflow.
 
-## Troubleshooting
-
-- **`nonce too low` / tx stuck**: increment nonce or wait a block
-- **Gas issues**: Subnet‑EVM PoA generally accepts standard 1 gwei
-- **Wrong chain ID in wallet**: ensure `12345` matches your network
-- **Node health**: if RPC stops responding, restart the local network:
-
-  ```bash
-  avalanche network stop
-  avalanche blockchain deploy avaxvn
-  ```
-
-- **Ports in use**: stop previous local networks, or edit ports in `~/.avalanche-cli` run config
-
 ## Teardown / Clean
 
 ```bash
 # Stop local network
 avalanche network stop
 
-# (Optional) Remove local run artifacts
-rm -rf ~/.avalanche-cli/local/avaxvn-local-node-local-network
+# Remove local run artifacts
+rm -rf ~/.avalanche-cli/local/
 ```
 
 ## Adding New Validators
