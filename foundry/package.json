@@ -1,0 +1,18 @@
+{
+  "name": "foundry",
+  "version": "1.0.0",
+  "description": "This guide shows how to deploy and interact with smart contracts on your local Avalanche Subnet using Foundry.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@rmrk-team/evm-contracts": "^2.5.6"
+  }
+}

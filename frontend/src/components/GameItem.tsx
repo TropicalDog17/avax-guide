@@ -8,9 +8,11 @@ interface GameItemProps {
   stats: Record<string, number | string>;
   color: string;
   balance: string;
-  onMint: () => void;
-  onTransfer?: (to: string, amount: number) => void;
-  isOwner: boolean;
+  equippedAmount: string;
+  onEquip: (amount: number) => void;
+  onUnequip: (amount: number) => void;
+  hasCharacter: boolean;
+  onMint?: (amount: number) => void;
 }
 
 const icons = {
@@ -20,17 +22,45 @@ const icons = {
   3: SparklesIcon,  // Legendary Armor
 };
 
-export function GameItem({ id, name, description, stats, color, balance, onMint, onTransfer, isOwner }: GameItemProps) {
+export function GameItem({ id, name, description, stats, color, balance, equippedAmount, onEquip, onUnequip, hasCharacter, onMint }: GameItemProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [showTransfer, setShowTransfer] = useState(false);
-  const [transferTo, setTransferTo] = useState('');
-  const [transferAmount, setTransferAmount] = useState(1);
+  const [showEquip, setShowEquip] = useState(false);
+  const [showUnequip, setShowUnequip] = useState(false);
+  const [showMint, setShowMint] = useState(false);
+  const [equipAmount, setEquipAmount] = useState(1);
+  const [unequipAmount, setUnequipAmount] = useState(1);
+  const [mintAmount, setMintAmount] = useState(1);
   const Icon = icons[id as keyof typeof icons];
 
-  const handleMint = async () => {
+  const handleEquip = async () => {
     setIsLoading(true);
     try {
-      await onMint();
+      await onEquip(equipAmount);
+      setShowEquip(false);
+      setEquipAmount(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnequip = async () => {
+    setIsLoading(true);
+    try {
+      await onUnequip(unequipAmount);
+      setShowUnequip(false);
+      setUnequipAmount(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMint = async () => {
+    if (!onMint) return;
+    setIsLoading(true);
+    try {
+      await onMint(mintAmount);
+      setShowMint(false);
+      setMintAmount(1);
     } finally {
       setIsLoading(false);
     }
@@ -93,69 +123,100 @@ export function GameItem({ id, name, description, stats, color, balance, onMint,
 
           <div className="flex flex-col mt-4 pt-4 border-t border-gray-200">
             <div className="flex justify-between items-center">
-              <div className="text-lg font-medium">
-                Balance: <span className="font-bold">{balance}</span>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <div className="text-lg font-medium">
+                    Inventory: <span className="font-bold">{balance}</span>
+                  </div>
+                  {parseInt(balance) > 0 && hasCharacter && (
+                    <span className="text-xs text-gray-500">(Available to equip)</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm text-gray-600">
+                    Equipped: <span className="font-bold">{equippedAmount}</span>
+                  </div>
+                  {parseInt(equippedAmount) > 0 && hasCharacter && (
+                    <span className="text-xs text-gray-500">(On your character)</span>
+                  )}
+                </div>
               </div>
-              <div className="flex gap-2">
-                {parseInt(balance) > 0 && onTransfer && (
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  {onMint && (
+                    <button
+                      onClick={() => {
+                        setShowMint(!showMint);
+                        setShowEquip(false);
+                        setShowUnequip(false);
+                      }}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                        color === 'red' ? 'bg-red-100 hover:bg-red-200 text-red-700' :
+                        color === 'blue' ? 'bg-blue-100 hover:bg-blue-200 text-blue-700' :
+                        color === 'green' ? 'bg-green-100 hover:bg-green-200 text-green-700' :
+                        'bg-purple-100 hover:bg-purple-200 text-purple-700'
+                      }`}
+                    >
+                      {showMint ? 'Cancel' : 'Mint'}
+                    </button>
+                  )}
+                  {hasCharacter && parseInt(balance) > 0 && (
+                    <button
+                      onClick={() => {
+                        setShowEquip(!showEquip);
+                        setShowUnequip(false);
+                        setShowMint(false);
+                      }}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                        color === 'red' ? 'bg-red-100 hover:bg-red-200 text-red-700' :
+                        color === 'blue' ? 'bg-blue-100 hover:bg-blue-200 text-blue-700' :
+                        color === 'green' ? 'bg-green-100 hover:bg-green-200 text-green-700' :
+                        'bg-purple-100 hover:bg-purple-200 text-purple-700'
+                      }`}
+                    >
+                      {showEquip ? 'Cancel' : 'Equip'}
+                    </button>
+                  )}
+                </div>
+                {hasCharacter && parseInt(equippedAmount) > 0 && (
                   <button
-                    onClick={() => setShowTransfer(!showTransfer)}
+                    onClick={() => {
+                      setShowUnequip(!showUnequip);
+                      setShowEquip(false);
+                      setShowMint(false);
+                    }}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
-                      color === 'red' ? 'bg-red-100 hover:bg-red-200 text-red-700' :
-                      color === 'blue' ? 'bg-blue-100 hover:bg-blue-200 text-blue-700' :
-                      color === 'green' ? 'bg-green-100 hover:bg-green-200 text-green-700' :
-                      'bg-purple-100 hover:bg-purple-200 text-purple-700'
-                    }`}
-                  >
-                    {showTransfer ? 'Cancel' : 'Transfer'}
-                  </button>
-                )}
-                {isOwner && (
-                  <button
-                    onClick={handleMint}
-                    disabled={isLoading}
-                    className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 mint-button ${
                       color === 'red' ? 'bg-red-600 hover:bg-red-700 text-white' :
                       color === 'blue' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
                       color === 'green' ? 'bg-green-600 hover:bg-green-700 text-white' :
                       'bg-purple-600 hover:bg-purple-700 text-white'
-                    } disabled:opacity-50`}
+                    }`}
                   >
-                    {isLoading ? 'Minting...' : 'Mint'}
+                    {showUnequip ? 'Cancel' : 'Unequip'}
                   </button>
                 )}
               </div>
             </div>
             
-            {showTransfer && onTransfer && (
+            {showEquip && (
               <div className="mt-4 p-4 bg-white rounded-lg shadow-sm">
                 <div className="flex flex-col gap-3">
-                  <input
-                    type="text"
-                    placeholder="Recipient address (0x...)"
-                    value={transferTo}
-                    onChange={(e) => setTransferTo(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  <p className="text-sm text-gray-600">How many {name}s would you like to equip to your character?</p>
                   <div className="flex gap-2">
-                    <input
-                      type="number"
-                      min="1"
-                      max={parseInt(balance)}
-                      value={transferAmount}
-                      onChange={(e) => setTransferAmount(Math.min(parseInt(e.target.value), parseInt(balance)))}
-                      className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        min="1"
+                        max={parseInt(balance)}
+                        value={equipAmount}
+                        onChange={(e) => setEquipAmount(Math.min(parseInt(e.target.value), parseInt(balance)))}
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-xs text-gray-500 mt-1">Max: {balance}</span>
+                    </div>
                     <button
-                      onClick={() => {
-                        if (transferTo && transferAmount > 0) {
-                          onTransfer(transferTo, transferAmount);
-                          setShowTransfer(false);
-                          setTransferTo('');
-                          setTransferAmount(1);
-                        }
-                      }}
-                      disabled={!transferTo || transferAmount <= 0}
+                      onClick={handleEquip}
+                      disabled={isLoading || equipAmount <= 0}
                       className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                         color === 'red' ? 'bg-red-600 hover:bg-red-700 text-white' :
                         color === 'blue' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
@@ -163,7 +224,73 @@ export function GameItem({ id, name, description, stats, color, balance, onMint,
                         'bg-purple-600 hover:bg-purple-700 text-white'
                       } disabled:opacity-50`}
                     >
-                      Confirm Transfer
+                      {isLoading ? 'Equipping...' : 'Add to Character'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showUnequip && (
+              <div className="mt-4 p-4 bg-white rounded-lg shadow-sm">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-gray-600">How many {name}s would you like to remove from your character?</p>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        min="1"
+                        max={parseInt(equippedAmount)}
+                        value={unequipAmount}
+                        onChange={(e) => setUnequipAmount(Math.min(parseInt(e.target.value), parseInt(equippedAmount)))}
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-xs text-gray-500 mt-1">Max: {equippedAmount}</span>
+                    </div>
+                    <button
+                      onClick={handleUnequip}
+                      disabled={isLoading || unequipAmount <= 0}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                        color === 'red' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                        color === 'blue' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
+                        color === 'green' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                        'bg-purple-600 hover:bg-purple-700 text-white'
+                      } disabled:opacity-50`}
+                    >
+                      {isLoading ? 'Unequipping...' : 'Return to Inventory'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {showMint && onMint && (
+              <div className="mt-4 p-4 bg-white rounded-lg shadow-sm">
+                <div className="flex flex-col gap-3">
+                  <p className="text-sm text-gray-600">How many {name}s would you like to mint?</p>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col">
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        value={mintAmount}
+                        onChange={(e) => setMintAmount(Math.min(parseInt(e.target.value) || 1, 10))}
+                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <span className="text-xs text-gray-500 mt-1">Max: 10</span>
+                    </div>
+                    <button
+                      onClick={handleMint}
+                      disabled={isLoading || mintAmount <= 0}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
+                        color === 'red' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                        color === 'blue' ? 'bg-blue-600 hover:bg-blue-700 text-white' :
+                        color === 'green' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                        'bg-purple-600 hover:bg-purple-700 text-white'
+                      } disabled:opacity-50`}
+                    >
+                      {isLoading ? 'Minting...' : 'Mint Items'}
                     </button>
                   </div>
                 </div>
