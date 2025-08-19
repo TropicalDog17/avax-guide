@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserProvider, Contract, formatUnits, BaseContract } from 'ethers';
 import { GameItem } from './components/GameItem';
 import { ConnectWallet } from './components/ConnectWallet';
+import { CoinBalance } from './components/CoinBalance';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface CharacterNFTContract extends BaseContract {
@@ -20,13 +21,28 @@ interface InventoryNFTContract extends BaseContract {
   safeTransferFrom(from: string, to: string, id: number, amount: number, data: string): Promise<any>;
 }
 
+interface ERC20Contract extends BaseContract {
+  balanceOf(account: string): Promise<bigint>;
+  transfer(to: string, amount: bigint): Promise<any>;
+  symbol(): Promise<string>;
+  mint(to: string, amount: bigint): Promise<any>;
+}
+
 const CHARACTER_NFT_ADDRESS = '0xc5812E2F22177682ad9731330814F0444Ac23E9e';
 const INVENTORY_NFT_ADDRESS = '0x37913A8722954A0736F79Db25c2e0635118eeDC8';
+const GAME_TOKEN_ADDRESS = '0x1678B18a370C65004c8e4e03b6bf4bE76EaDf4F1';
 const CHARACTER_NFT_ABI = [
   'function balanceOf(address owner) view returns (uint256)',
   'function ownerOf(uint256 tokenId) view returns (address)',
   'function mint(address to)',
   'function transferFrom(address from, address to, uint256 tokenId)'
+];
+
+const GAME_TOKEN_ABI = [
+  'function balanceOf(address account) view returns (uint256)',
+  'function transfer(address to, uint256 amount)',
+  'function symbol() view returns (string)',
+  'function mint(address to, uint256 amount)'
 ];
 
 const INVENTORY_NFT_ABI = [
@@ -85,11 +101,14 @@ export function App() {
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [characterContract, setCharacterContract] = useState<CharacterNFTContract | null>(null);
   const [inventoryContract, setInventoryContract] = useState<InventoryNFTContract | null>(null);
+  const [tokenContract, setTokenContract] = useState<ERC20Contract | null>(null);
   const [address, setAddress] = useState<string>('');
   const [characterId, setCharacterId] = useState<number | null>(null);
   const [characters, setCharacters] = useState<number[]>([]);
   const [balances, setBalances] = useState<Record<number, string>>({});
   const [equippedItems, setEquippedItems] = useState<Record<number, string>>({});
+  const [tokenBalance, setTokenBalance] = useState<bigint>(0n);
+  const [tokenSymbol, setTokenSymbol] = useState<string>('');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'ethereum' in window) {
@@ -101,6 +120,12 @@ export function App() {
       
       const inventoryContract = new Contract(INVENTORY_NFT_ADDRESS, INVENTORY_NFT_ABI, provider);
       setInventoryContract(inventoryContract as unknown as InventoryNFTContract);
+
+      const tokenContract = new Contract(GAME_TOKEN_ADDRESS, GAME_TOKEN_ABI, provider);
+      setTokenContract(tokenContract as unknown as ERC20Contract);
+
+      // Get token symbol
+      tokenContract.symbol().then(symbol => setTokenSymbol(symbol));
     }
   }, []);
 
@@ -161,7 +186,10 @@ export function App() {
         }
         
         try {
-          await updateBalances(userAddress);
+          await Promise.all([
+            updateBalances(userAddress),
+            updateTokenBalance(userAddress)
+          ]);
         } catch (error) {
           console.error('Failed to update balances:', error);
         }
@@ -255,6 +283,53 @@ export function App() {
     } catch (error) {
       console.error('Failed to mint:', error);
       toast.error('Failed to mint item. You can only mint up to 10 items at once.');
+    }
+  };
+
+  const transferTokens = async (amount: bigint, recipient: string) => {
+    if (!tokenContract || !provider || !address) {
+      console.error('Contract, provider, or address not initialized');
+      return;
+    }
+
+    try {
+      const signer = await provider.getSigner();
+      const contractWithSigner = tokenContract.connect(signer) as unknown as ERC20Contract;
+      const toastId = toast.loading(`Transferring ${formatUnits(amount, 18)} ${tokenSymbol}...`);
+      const tx = await contractWithSigner.transfer(recipient, amount);
+      await tx.wait();
+      await updateTokenBalance(address);
+      toast.success(`Successfully transferred ${formatUnits(amount, 18)} ${tokenSymbol}!`, { id: toastId });
+    } catch (error) {
+      console.error('Failed to transfer tokens:', error);
+      toast.error('Failed to transfer tokens. Please check the amount and recipient address.');
+    }
+  };
+
+  const updateTokenBalance = async (address: string) => {
+    if (tokenContract) {
+      const balance = await tokenContract.balanceOf(address);
+      setTokenBalance(balance);
+    }
+  };
+
+  const mintTokens = async (amount: bigint) => {
+    if (!tokenContract || !provider || !address) {
+      console.error('Contract, provider, or address not initialized');
+      return;
+    }
+
+    try {
+      const signer = await provider.getSigner();
+      const contractWithSigner = tokenContract.connect(signer) as unknown as ERC20Contract;
+      const toastId = toast.loading(`Minting ${formatUnits(amount, 18)} ${tokenSymbol}...`);
+      const tx = await contractWithSigner.mint(address, amount);
+      await tx.wait();
+      await updateTokenBalance(address);
+      toast.success(`Successfully minted ${formatUnits(amount, 18)} ${tokenSymbol}!`, { id: toastId });
+    } catch (error) {
+      console.error('Failed to mint tokens:', error);
+      toast.error('Failed to mint tokens. Please try again.');
     }
   };
 
@@ -401,6 +476,17 @@ export function App() {
           />
         </div>
         
+        {address && (
+          <div className="mb-6">
+            <CoinBalance
+              balance={tokenBalance}
+              symbol={tokenSymbol}
+              onTransfer={transferTokens}
+              onMint={mintTokens}
+            />
+          </div>
+        )}
+
         <div className="grid gap-4 md:grid-cols-2">
           {ITEMS.map((item) => (
             <GameItem
