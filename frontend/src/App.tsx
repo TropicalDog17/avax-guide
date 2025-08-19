@@ -17,6 +17,7 @@ interface InventoryNFTContract extends BaseContract {
   equipToCharacter(characterId: number, itemId: number, amount: number): Promise<any>;
   unequipFromCharacter(characterId: number, itemId: number, amount: number): Promise<any>;
   getCharacterItems(characterId: number, itemId: number): Promise<bigint>;
+  safeTransferFrom(from: string, to: string, id: number, amount: number, data: string): Promise<any>;
 }
 
 const CHARACTER_NFT_ADDRESS = '0xc5812E2F22177682ad9731330814F0444Ac23E9e';
@@ -37,7 +38,8 @@ const INVENTORY_NFT_ABI = [
   'function mint(address to, uint256 id, uint256 amount)',
   'function equipToCharacter(uint256 characterId, uint256 itemId, uint256 amount)',
   'function unequipFromCharacter(uint256 characterId, uint256 itemId, uint256 amount)',
-  'function getCharacterItems(uint256 characterId, uint256 itemId) view returns (uint256)'
+  'function getCharacterItems(uint256 characterId, uint256 itemId) view returns (uint256)',
+  'function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes data)'
 ];
 
 interface GameItemData {
@@ -256,6 +258,29 @@ export function App() {
     }
   };
 
+  const transferItem = async (id: number, amount: number) => {
+    if (!inventoryContract || !provider || !address) {
+      console.error('Contract, provider, or address not initialized');
+      return;
+    }
+
+    const recipientAddress = prompt('Enter recipient address:');
+    if (!recipientAddress) return;
+
+    try {
+      const signer = await provider.getSigner();
+      const contractWithSigner = inventoryContract.connect(signer) as unknown as InventoryNFTContract;
+      const toastId = toast.loading(`Transferring ${amount} ${ITEMS[id].name}...`);
+      const tx = await contractWithSigner.safeTransferFrom(address, recipientAddress, id, amount, '0x');
+      await tx.wait();
+      await updateBalances(address);
+      toast.success(`Successfully transferred ${amount} ${ITEMS[id].name}!`, { id: toastId });
+    } catch (error) {
+      console.error('Failed to transfer:', error);
+      toast.error('Failed to transfer item. Please check the recipient address and try again.');
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-100 py-8">
@@ -389,6 +414,7 @@ export function App() {
               equippedAmount={equippedItems[item.id] || '0'}
               onEquip={(amount) => equipItem(item.id, amount)}
               onUnequip={(amount) => unequipItem(item.id, amount)}
+              onTransfer={(amount) => transferItem(item.id, amount)}
               onMint={(amount) => mintItem(item.id, amount)}
               hasCharacter={characterId !== null}
             />
