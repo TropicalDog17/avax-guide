@@ -68,16 +68,53 @@ export default config;
 hardhat/
 ├── contracts/
 │   ├── Greeter.sol       # Simple greeter contract
-│   └── MyToken.sol       # ERC-20 token contract
+│   ├── MyToken.sol       # ERC-20 token contract
+│   └── GameItems.sol     # ERC-1155 game items contract
 ├── scripts/
 │   ├── deploy-greeter.ts # Greeter deployment script
-│   └── deploy-token.ts   # Token deployment script
+│   ├── deploy-token.ts   # Token deployment script
+│   └── deploy-gameitems.ts # Game items deployment script
 ├── .env                  # Environment variables (optional)
 ├── tsconfig.json         # TypeScript configuration
 └── hardhat.config.ts     # Hardhat configuration
 ```
 
 ## Contract Source Code
+
+### GameItems.sol
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract GameItems is ERC1155, Ownable {
+    uint256 public constant SWORD = 0;
+    uint256 public constant SHIELD = 1;
+    uint256 public constant POTION = 2;
+    uint256 public constant LEGENDARY_ARMOR = 3;
+
+    string private _baseUri;
+
+    constructor(string memory baseUri) ERC1155(baseUri) Ownable(msg.sender) {
+        _baseUri = baseUri;
+    }
+
+    function mint(
+        address account,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public onlyOwner {
+        _mint(account, id, amount, data);
+    }
+
+    function uri(uint256 tokenId) public view override returns (string memory) {
+        return string(abi.encodePacked(_baseUri, _toString(tokenId), ".json"));
+    }
+}
+```
 
 ### Greeter.sol
 ```solidity
@@ -182,6 +219,9 @@ npx hardhat run scripts/deploy-greeter.ts --network avaxvn
 
 # Deploy Token
 npx hardhat run scripts/deploy-token.ts --network avaxvn
+
+# Deploy Game Items
+npx hardhat run scripts/deploy-gameitems.ts --network avaxvn
 ```
 
 Save the deployed contract addresses!
@@ -219,6 +259,25 @@ await token.transfer(
   "0x1111111111111111111111111111111111111111",
   ethers.parseEther("1000")
 );
+```
+
+### Game Items (ERC-1155) Interaction
+
+```typescript
+const gameItems = await ethers.getContractAt("GameItems", "YOUR_GAME_ITEMS_ADDRESS");
+
+// Check balance of an item (SWORD = 0)
+const [signer] = await ethers.getSigners();
+const swordBalance = await gameItems.balanceOf(signer.address, 0);
+console.log("SWORD balance:", swordBalance);
+
+// Mint new items (requires owner)
+await gameItems.mint(signer.address, 0, 10, "0x"); // Mint 10 SWORDs
+await gameItems.mint(signer.address, 1, 5, "0x");  // Mint 5 SHIELDs
+
+// Get item URI
+const itemUri = await gameItems.uri(0);
+console.log("Item URI:", itemUri);
 ```
 
 ## Testing

@@ -8,10 +8,12 @@ This guide shows how to deploy and interact with smart contracts on your local A
 foundry/
 ├── src/
 │   ├── ERC20Token.sol    # ERC-20 token contract
-│   └── Greeter.sol       # Simple greeter contract
+│   ├── Greeter.sol       # Simple greeter contract
+│   └── GameItems.sol     # ERC-1155 game items contract
 ├── script/
 │   ├── DeployERC20.s.sol    # Token deployment script
-│   └── DeployGreeter.s.sol  # Greeter deployment script
+│   ├── DeployGreeter.s.sol  # Greeter deployment script
+│   └── DeployGameItems.s.sol # Game items deployment script
 └── foundry.toml          # Foundry configuration
 ```
 
@@ -63,6 +65,18 @@ forge script script/DeployERC20.s.sol \
   --verify false
 ```
 
+### Deploy Game Items (ERC-1155)
+
+```bash
+forge script script/DeployGameItems.s.sol \
+  --rpc-url $RPC_URL \
+  --broadcast \
+  --skip-simulation \
+  --via-ir \
+  -vvvv \
+  --verify false
+```
+
 Save the deployed contract addresses from the script output!
 
 ## Interaction with cast
@@ -100,7 +114,66 @@ cast send $TOKEN "transfer(address,uint256)" \
   --private-key $PRIVATE_KEY
 ```
 
+### Game Items (ERC-1155)
+
+Replace `$GAME_ITEMS` with your deployed GameItems contract address.
+
+Check balance of an item:
+```bash
+cast call $GAME_ITEMS "balanceOf(address,uint256)(uint256)" \
+  $(cast wallet address $PRIVATE_KEY) 0 \
+  --rpc-url $RPC_URL
+```
+
+Mint a new item (requires owner):
+```bash
+cast send $GAME_ITEMS "mint(address,uint256,uint256,bytes)" \
+  $(cast wallet address $PRIVATE_KEY) 0 10 0x \
+  --rpc-url $RPC_URL \
+  --private-key $PRIVATE_KEY
+```
+
+Get item URI:
+```bash
+cast call $GAME_ITEMS "uri(uint256)(string)" 0 --rpc-url $RPC_URL
+```
+
 ## Contract Source Code
+
+### GameItems.sol
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract GameItems is ERC1155, Ownable {
+    uint256 public constant SWORD = 0;
+    uint256 public constant SHIELD = 1;
+    uint256 public constant POTION = 2;
+    uint256 public constant LEGENDARY_ARMOR = 3;
+
+    string private _baseUri;
+
+    constructor(string memory baseUri) ERC1155(baseUri) Ownable(msg.sender) {
+        _baseUri = baseUri;
+    }
+
+    function mint(
+        address account,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) public onlyOwner {
+        _mint(account, id, amount, data);
+    }
+
+    function uri(uint256 tokenId) public view override returns (string memory) {
+        return string(abi.encodePacked(_baseUri, _toString(tokenId), ".json"));
+    }
+}
+```
 
 ### Greeter.sol
 ```solidity

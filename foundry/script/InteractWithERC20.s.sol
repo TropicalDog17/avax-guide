@@ -6,13 +6,13 @@ import "../src/ERC20Token.sol";
 
 contract InteractWithERC20 is Script {
     function run() external {
-        address tokenAddress = 0xYourDeployedTokenAddress; // Replace with actual deployed address
+        address tokenAddress = address(0x1234567890123456789012345678901234567890); // Replace with actual deployed address
         MyToken token = MyToken(tokenAddress);
 
         vm.startBroadcast();
 
         // Example interaction: Transfer tokens
-        token.transfer(0xRecipientAddress, 100 * 10 ** 18); // Replace with actual recipient address
+        token.transfer(address(0x2234567890123456789012345678901234567890), 100 * 10 ** 18); // Replace with actual recipient address
 
         vm.stopBroadcast();
     }

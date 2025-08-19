@@ -1,0 +1,25 @@
+{
+    "name": "Guardian Shield",
+    "description": "A sturdy shield that can deflect magical attacks",
+    "image": "https://game.example/items/shield.png",
+    "attributes": [
+        {
+            "trait_type": "Rarity",
+            "value": "Uncommon"
+        },
+        {
+            "trait_type": "Defense",
+            "value": 30
+        },
+        {
+            "trait_type": "Magic Resistance",
+            "value": 20
+        },
+        {
+            "display_type": "boost_percentage",
+            "trait_type": "Block Chance",
+            "value": 25
+        }
+    ],
+    "animation_url": "https://game.example/items/shield.mp4"
+}

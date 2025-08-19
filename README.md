@@ -172,12 +172,41 @@ cast block-number --rpc-url $RPC
 
 ## Development Guides
 
-This repository contains two implementation paths:
+This repository contains three main components:
 
 - [Foundry Guide](./foundry/README.md) - For Solidity-native development
 - [Hardhat Guide](./hardhat/README.md) - For JavaScript/TypeScript development
+- [Frontend UI](./frontend/README.md) - React-based UI for interacting with game items
 
-Choose the one that best fits your workflow.
+### Frontend UI Setup
+
+The frontend provides a visual interface for interacting with the GameItems contract:
+
+1. Install dependencies:
+```bash
+cd frontend
+npm install
+```
+
+2. Configure the contract address:
+- Open `src/App.tsx`
+- Update `GAME_ITEMS_ADDRESS` with your deployed contract address
+
+3. Start the development server:
+```bash
+npm run dev
+```
+
+4. Open your browser and connect MetaMask to interact with your game items.
+
+Features:
+- Visual display of game items (Sword, Shield, Potion, Legendary Armor)
+- Real-time balance updates
+- Minting interface for contract owner
+- MetaMask integration for transactions
+- Responsive design for all devices
+
+Choose the development environment that best fits your workflow.
 
 ## Troubleshooting
 

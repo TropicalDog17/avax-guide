@@ -1,0 +1,25 @@
+{
+    "name": "Flaming Sword",
+    "description": "A legendary sword imbued with the power of fire",
+    "image": "https://game.example/items/sword.png",
+    "attributes": [
+        {
+            "trait_type": "Rarity",
+            "value": "Rare"
+        },
+        {
+            "trait_type": "Damage",
+            "value": 50
+        },
+        {
+            "trait_type": "Element",
+            "value": "Fire"
+        },
+        {
+            "display_type": "boost_percentage",
+            "trait_type": "Critical Hit Chance",
+            "value": 15
+        }
+    ],
+    "animation_url": "https://game.example/items/sword.mp4"
+}
