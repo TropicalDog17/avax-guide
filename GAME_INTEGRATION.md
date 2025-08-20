@@ -53,7 +53,7 @@ Supports ERC-20, ERC-721, ERC-1155, and customization.
 
 ## Deployment to Fuji Testnet
 - Network Name: Avalanche Fuji Testnet  
-- RPC URL: https://api.avax-test.network/ext/bc/C/rpc  
+- RPC URL: [https://api.avax-test.network/ext/bc/C/rpc](https://ava-testnet.public.blastapi.io/ext/bc/C/rpc)
 - Chain ID: 43113  
 - Get test AVAX from [Fuji Faucet](https://faucet.avax.network/)  
 
