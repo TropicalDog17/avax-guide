@@ -51,7 +51,7 @@ Key Features (documented at [Wallet FAQ](https://portal.thirdweb.com/wallet)):
 - Built with Rust core for performance
 
 #### Unity
-Access Unity-specific documentation at [Unity SDK](https://portal.thirdweb.com/sdk/unity) for:
+Access Unity-specific documentation at [Unity SDK](https://portal.thirdweb.com/unity/v5) for:
 - Wallet integration
 - Smart contract interactions
 - Asset management
@@ -124,12 +124,6 @@ Focus on creating a seamless wallet experience:
 - Clear error handling and recovery flows
 - Wallet embedded naturally in game UI
 
-**Pro Tips**
-- Use ThirdWeb's Smart Wallet for better UX
-- Implement proper transaction queuing
-- Add offline functionality where possible
-- Consider implementing social logins
-
 ### 2. Smart Contract Development Strategy
 
 **Basic Implementation**
@@ -164,13 +158,6 @@ Focus on creating a seamless wallet experience:
 - Optimistic updates
 - Background transaction processing
 - Fallback mechanisms for failed transactions
-
-**Pro Tips**
-- Cache blockchain data effectively
-- Implement proper loading states
-- Add offline gameplay capabilities
-- Use events for real-time updates
-- Consider layer 2 solutions for scaling
 
 ### 4. Innovation Opportunities
 
@@ -211,3 +198,25 @@ Focus on creating a seamless wallet experience:
 - [ ] Gasless transactions
 
 Remember: Focus on creating a seamless user experience first, then build complexity as needed. The best blockchain games are those where users don't need to understand blockchain to enjoy the game.
+
+## Development Approach Flowchart
+
+Use this flowchart to determine the best approach for your team based on your current capabilities and project requirements:
+
+```mermaid
+flowchart TD
+    A[Start] --> B{"Familiar with<br/>Blockchain Dev?"}
+    B -->|No| C["Use ThirdWeb SDK (Unity/Unreal) + Pre-built Contracts"]
+    B -->|Yes| D{"Project<br/>Scope?"}
+    C --> G["Focus: Wallet Integration, Basic NFT/Marketplace"]
+    D -->|Simple| H["Pre-built Contracts Only"]
+    D -->|Complex| I["Custom Contracts + Advanced Features"]
+    G --> J{"Need Advanced<br/>Features?"}
+    J -->|No| K["MVP: Wallet + Contract Deployment"]
+    J -->|Yes| L["Enhance Gradually: Add Game Flow Integration + Innovation"]
+    H --> M["Refinement Path: Optimize Wallet UX, Deploy More Contracts"]
+    I --> N["Custom Path: Deep Game Flow Integration + Innovative Mechanics"]
+
+```
+
+This flowchart helps you identify the most suitable development path based on your team's experience level and project requirements. Each path leads to a successful implementation while optimizing for your team's strengths.
