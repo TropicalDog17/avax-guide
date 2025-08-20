@@ -2,6 +2,8 @@
 
 This guide provides references to ThirdWeb documentation for integrating blockchain features into your game using Unity or Unreal Engine on the Avalanche Fuji testnet.
 
+> Remember: Focus on creating a seamless user experience first, then build complexity as needed. The best blockchain games are those where users don't need to understand blockchain to enjoy the game.
+
 ## Documentation Quick Links
 - [ThirdWeb Gaming Solutions](https://thirdweb.com/solutions/gaming)  
 - [ThirdWeb Tokens](https://portal.thirdweb.com/pre-built-contracts/tokens)  
