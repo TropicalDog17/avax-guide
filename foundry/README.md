@@ -45,7 +45,8 @@ export GREETING="Hello, Avalanche!"
 
 ```bash
 forge script script/DeployGreeter.s.sol \
-  --rpc-url $RPC_URL \
+  --rpc-url $
+   \
   --broadcast \
   --skip-simulation \
   --via-ir \

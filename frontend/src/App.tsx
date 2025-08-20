@@ -66,6 +66,25 @@ interface GameItemData {
   color: string;
 }
 
+// Character name mapping
+const CHARACTER_NAMES: Record<number, string> = {
+  1: "Theron - The Flame Knight",
+  2: "Brandon - The Guardian",
+  3: "Nami - The Healer",
+  4: "Draven - The Dragon Knight",
+  5: "Elowen - The Mystic",
+  6: "Kaine - The Warrior",
+  7: "Sylas - The Battlemage",
+  8: "Raven - The Shadow",
+  9: "Varis - The Champion",
+  10: "Zara - The Spellblade"
+};
+
+// Get character name or default to number if not in mapping
+const getCharacterName = (id: number): string => {
+  return CHARACTER_NAMES[id] || `Character #${id}`;
+};
+
 const ITEMS: GameItemData[] = [
   {
     id: 0,
@@ -402,7 +421,7 @@ export function App() {
                       disabled={isLoading}
                     >
                       {characters.map((id) => (
-                        <option key={id} value={id}>Character #{id}</option>
+                        <option key={id} value={id}>{getCharacterName(id)}</option>
                       ))}
                     </select>
                     <button
@@ -441,7 +460,7 @@ export function App() {
               </div>
             ) : address ? (
               <div className="mt-2">
-                <p className="text-gray-500">You don't have a character yet</p>
+                <p className="text-gray-500">Your adventure awaits! Mint a hero to begin your journey.</p>
                 <button
                   onClick={async () => {
                     if (!characterContract || !provider) return;
