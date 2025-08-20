@@ -3,205 +3,64 @@
 This guide provides references to ThirdWeb documentation for integrating blockchain features into your game using Unity or Unreal Engine on the Avalanche Fuji testnet.
 
 ## Documentation Quick Links
-
-### Core Documentation
-- [ThirdWeb Gaming Solutions](https://thirdweb.com/solutions/gaming)
-- [ThirdWeb Tokens Documentation](https://portal.thirdweb.com/pre-built-contracts/tokens)
-
-### Engine-Specific SDKs
-- [Unity SDK Documentation](https://portal.thirdweb.com/sdk/unity)
-- [Unreal Engine SDK Documentation](https://portal.thirdweb.com/sdk/unreal)
+- [ThirdWeb Gaming Solutions](https://thirdweb.com/solutions/gaming)  
+- [ThirdWeb Tokens](https://portal.thirdweb.com/pre-built-contracts/tokens)  
+- [Unity SDK](https://portal.thirdweb.com/sdk/unity)  
+- [Unreal SDK](https://portal.thirdweb.com/sdk/unreal)  
 
 ## Integration Steps
 
 ### 1. Smart Contract Deployment
+ThirdWeb provides pre-built, audited contracts deployable via:  
+- [Dashboard](https://portal.thirdweb.com/pre-built-contracts/tokens)  
+- Programmatic deployment  
 
-ThirdWeb provides pre-built, audited contracts that can be deployed either through:
-- ThirdWeb Dashboard UI
-- Programmatic deployment
-
-Visit [Token Deployment Guide](https://portal.thirdweb.com/pre-built-contracts/tokens) to:
-- Deploy ERC-20 tokens (coins)
-- Deploy ERC-721/ERC-1155 NFTs
-- Customize base implementations
+Supports ERC-20, ERC-721, ERC-1155, and customization.
 
 ### 2. Wallet Integration
-
-ThirdWeb offers multiple wallet solutions:
-- In-App Wallets
-- Ecosystem Wallets
-- Smart Wallets
-
-Key Features (documented at [Wallet FAQ](https://portal.thirdweb.com/wallet)):
-- Full EVM compatibility
-- Multiple authentication options
-- Account recovery options
-- Gasless transactions support
-- Account abstraction capabilities
+[Wallet FAQ](https://portal.thirdweb.com/wallet) covers:  
+- EVM compatibility  
+- Multiple authentication methods  
+- Recovery options  
+- Gasless transactions  
+- Account abstraction  
 
 ### 3. Game Engine Integration
 
-#### Unreal Engine
-[Unreal SDK Features](https://portal.thirdweb.com/sdk/unreal):
-- Create and login to In-App Wallets
-- Email and social authentication
-- Account Abstraction support
-- Session Key management
-- Compatible with UE 5.3-5.5
-- Built with Rust core for performance
+**Unreal Engine** ([docs](https://portal.thirdweb.com/unreal-engine))  
+- In-App Wallets with email/social login  
+- Account abstraction + session keys  
+- UE 5.3–5.5 support  
 
-#### Unity
-Access Unity-specific documentation at [Unity SDK](https://portal.thirdweb.com/unity/v5) for:
-- Wallet integration
-- Smart contract interactions
-- Asset management
-- Transaction handling
+**Unity** ([docs](https://portal.thirdweb.com/unity/v5))  
+- Wallet integration  
+- Smart contract interactions  
+- Asset management  
+- Transactions  
 
 ### 4. Advanced Features
-
-Explore these advanced topics after basic integration:
-- [Account Abstraction](https://portal.thirdweb.com/wallet/smart-wallet)
-- Sign In with Ethereum
-- Gas Sponsorship
-- Payment Options
-
-## Support Resources
-
-- [Support Portal](https://portal.thirdweb.com)
-- Video Tutorials
-- Changelog
-- AI Integration Documentation
+- [Account Abstraction](https://portal.thirdweb.com/wallet/smart-wallet)  
+- Sign In with Ethereum  
+- Gas Sponsorship  
+- Payment Options  
 
 ## Best Practices
-
-1. **Security**
-   - Follow ThirdWeb's security guidelines for wallet management
-   - Use proper authentication flows
-   - Implement secure session management
-
-2. **User Experience**
-   - Utilize ThirdWeb's pre-built UI components
-   - Implement proper error handling
-   - Follow platform-specific design guidelines
-
-3. **Performance**
-   - Use ThirdWeb's optimized SDKs
-   - Follow recommended caching strategies
-   - Implement proper transaction management
+- **Security:** wallet guidelines, secure sessions  
+- **UX:** pre-built UI, error handling, platform-native flow  
+- **Performance:** caching, transaction optimization  
 
 ## Deployment to Fuji Testnet
-
-For deploying to Avalanche Fuji testnet, use these network details:
-- Network Name: Avalanche Fuji Testnet
-- RPC URL: https://api.avax-test.network/ext/bc/C/rpc
-- Chain ID: 43113
-
-Remember to get test AVAX from the [Fuji Faucet](https://faucet.avax.network/) before deployment.
+- Network Name: Avalanche Fuji Testnet  
+- RPC URL: https://api.avax-test.network/ext/bc/C/rpc  
+- Chain ID: 43113  
+- Get test AVAX from [Fuji Faucet](https://faucet.avax.network/)  
 
 ## Additional Resources
-
-- [ThirdWeb GitHub](https://github.com/thirdweb-dev)
-- [Avalanche Documentation](https://docs.avax.network/)
-- [Fuji Testnet Guide](https://docs.avax.network/quickstart/fuji-workflow)
-
-For the most up-to-date information and detailed implementation guides, always refer to the official ThirdWeb documentation at [https://portal.thirdweb.com](https://portal.thirdweb.com).
-
-## Strategic Implementation Guide
-
-### 1. Wallet Integration Strategy
-Focus on creating a seamless wallet experience:
-
-**Basic Implementation**
-- Simple wallet connect/create functionality
-- Basic transaction handling
-- Standard MetaMask integration
-
-**Advanced Implementation**
-- Session key implementation for smoother UX
-- Batch transactions to reduce confirmations
-- Gasless transactions using relayers
-- Smart account abstraction
-- Clear error handling and recovery flows
-- Wallet embedded naturally in game UI
-
-### 2. Smart Contract Development Strategy
-
-**Basic Implementation**
-- Standard ERC721/ERC1155 for game items
-- Simple state storage contracts
-- Basic access control
-
-**Advanced Implementation**
-- Gas-optimized contracts
-- Upgradeable contract patterns
-- Advanced security features
-- Cross-contract interactions
-- Event emission for off-chain tracking
-
-**Pro Tips**
-- Use OpenZeppelin contracts as base
-- Implement proper access control
-- Add emergency pause functionality
-- Design for future upgrades
-- Consider implementing meta-transactions
-
-### 3. Game Integration Strategy
-
-**Basic Implementation**
-- Simple NFT minting in game
-- Basic state reading/writing
-- Standard transaction flows
-
-**Advanced Implementation**
-- State channel implementation
-- Off-chain state management
-- Optimistic updates
-- Background transaction processing
-- Fallback mechanisms for failed transactions
-
-### 4. Innovation Opportunities
-
-**Technical Innovations**
-- Cross-chain functionality
-- Layer 2 scaling solutions
-- Custom token standards
-- Advanced tokenomics
-
-**UX Innovations**
-- Seamless web3 onboarding
-- Social features using blockchain
-- Progressive decentralization
-- Innovative reward mechanisms
-
-**Game Design Innovations**
-- On-chain game mechanics
-- Player-owned economies
-- Dynamic NFT systems
-- Cross-game asset utilization
-
-### Development Checklist
-#### Foundation
-- [ ] Basic wallet connection
-- [ ] Simple contract deployment
-- [ ] Basic transaction handling
-
-#### Enhanced Features
-- [ ] Optimized gas usage
-- [ ] Improved UX flows
-- [ ] Error handling
-- [ ] Loading states
-
-#### Advanced Integration
-- [ ] Session key implementation
-- [ ] Batched transactions
-- [ ] State channels
-- [ ] Gasless transactions
-
-Remember: Focus on creating a seamless user experience first, then build complexity as needed. The best blockchain games are those where users don't need to understand blockchain to enjoy the game.
+- [ThirdWeb GitHub](https://github.com/thirdweb-dev)  
+- [Avalanche Docs](https://docs.avax.network/)  
+- [Fuji Testnet Guide](https://docs.avax.network/quickstart/fuji-workflow)  
 
 ## Development Approach Flowchart
-
-Use this flowchart to determine the best approach for your team based on your current capabilities and project requirements:
 
 ```mermaid
 flowchart TD
@@ -215,8 +74,3 @@ flowchart TD
     J -->|No| K["MVP: Wallet + Contract Deployment"]
     J -->|Yes| L["Enhance Gradually: Add Game Flow Integration + Innovation"]
     H --> M["Refinement Path: Optimize Wallet UX, Deploy More Contracts"]
-    I --> N["Custom Path: Deep Game Flow Integration + Innovative Mechanics"]
-
-```
-
-This flowchart helps you identify the most suitable development path based on your team's experience level and project requirements. Each path leads to a successful implementation while optimizing for your team's strengths.
