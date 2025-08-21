@@ -9,8 +9,7 @@ Key token standards and RMRK modules:
 - [ERC20](https://eips.ethereum.org/EIPS/eip-20) - Fungible Token Standard
 - [ERC721](https://eips.ethereum.org/EIPS/eip-721) - Non-Fungible Token Standard
 - [ERC1155](https://eips.ethereum.org/EIPS/eip-1155) - Multi Token Standard
-- [ERC7401 (Nestable)](https://evm.rmrk.app/rmrk-modules/nestable) - NFTs that can own other NFTs
-
+- [ERC7401 (Nestable)](https://evm.rmrk.app/nestable) - NFTs that can own other NFTs
 ## Table of Contents
 
 1. [Setup and Installation](#prerequisites)
