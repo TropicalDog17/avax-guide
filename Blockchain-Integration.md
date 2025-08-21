@@ -74,5 +74,5 @@ flowchart TD
     D -->|Complex| I["Custom Contracts + Advanced Features"]
     G --> J{"Need Advanced<br/>Features?"}
     J -->|No| K["MVP: Wallet + Contract Deployment"]
-    J -->|Yes| L["Enhance Gradually: Add Game Flow Integration + Innovation"]
+    J -->|Yes| L["Enhance Gradually: Add Game Flow Integration"]
     H --> M["Refinement Path: Optimize Wallet UX, Deploy More Contracts"]
