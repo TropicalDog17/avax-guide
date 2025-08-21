@@ -1,4 +1,4 @@
-# Game Integration Guide: Adding Blockchain Features Using ThirdWeb
+# Blockchain Integration Guide: Adding Blockchain Features Using ThirdWeb
 
 This guide provides references to ThirdWeb documentation for integrating blockchain features into your game using Unity or Unreal Engine on the Avalanche Fuji testnet.
 
